@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Log in</title>
+<style>
+:root{
+  --ink:#f3f5fb; --muted:#c3cadb; --line:rgba(255,255,255,.4);
+  --accent:#ffd86b; --accent-ink:#1b1606; --err:#ff9a90;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink); background:#0b1020;
+  font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px));
+}
+#bg{position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2}
+.shade{position:fixed; inset:0; background:rgba(5,8,20,.3); z-index:-1}
+
+main{
+  width:100%; max-width:380px; padding:28px 24px; border-radius:16px;
+  background:rgba(255,255,255,.12); border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(0px); backdrop-filter:blur(0px);
+}
+h1{margin:0 0 4px; font-size:1.7rem}
+p.sub{margin:0 0 22px; color:var(--muted); font-size:.95rem}
+label{display:block; font-size:.9rem; font-weight:600; margin:0 0 6px}
+.field{margin-bottom:16px}
+input[type=text],input[type=password]{
+  width:100%; padding:12px 14px; font-size:1rem; color:var(--ink);
+  background:rgba(255,255,255,.15); border:1px solid var(--line); border-radius:8px;
+}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+.pw{position:relative}
+.pw input{padding-right:70px}
+.pw button{
+  position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  background:none; border:0; color:var(--accent); font-weight:600; font-size:.85rem;
+  padding:8px; cursor:pointer;
+}
+.row{display:flex; justify-content:space-between; align-items:center; font-size:.88rem; margin-bottom:20px}
+.row label{display:flex; gap:8px; align-items:center; font-weight:400; margin:0}
+a{color:var(--accent)}
+.submit{
+  width:100%; padding:13px; font-size:1rem; font-weight:700; cursor:pointer;
+  background:var(--accent); color:var(--accent-ink); border:0; border-radius:8px;
+}
+.msg{min-height:1.3em; margin-top:14px; font-size:.9rem; color:var(--err)}
+.foot{margin-top:18px; text-align:center; color:var(--muted); font-size:.9rem}
+</style>
+</head>
+<body>
+
+
+<video id="bg" autoplay muted loop playsinline aria-hidden="true">
+  <source src="night.mp4" type="video/mp4">
+</video>
+<div class="shade"></div>
+
+<button type="button" id="soundBtn" onclick="toggleSound()"
+  style="position:fixed; top:calc(12px + env(safe-area-inset-top,0px)); right:12px; z-index:5; padding:10px 16px; border:1px solid rgba(255,255,255,.5); border-radius:999px; background:rgba(0,0,0,.45); color:#fff; font-weight:700; cursor:pointer">
+  Sound off
+</button>
+
+<main>
+  <h1>Log in</h1>
+  <p class="sub">Enter your details to continue.</p>
+
+  <div class="field">
+    <label for="user">Username or email</label>
+    <input id="user" type="text" autocomplete="username" autocapitalize="none">
+  </div>
+
+  <div class="field">
+    <label for="pass">Password</label>
+    <div class="pw">
+      <input id="pass" type="password" autocomplete="current-password">
+      <button type="button" id="toggle" onclick="togglePassword()">Show</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <label><input type="checkbox" id="remember"> Remember me</label>
+    <a href="forgot.html">Forgot password?</a>
+  </div>
+
+  <button class="submit" type="button" onclick="login()">Log in</button>
+  <div class="msg" id="msg" role="alert"></div>
+
+  <div class="foot">No account? <a href="signup.html">Sign up</a></div>
+</main>
+
+<script>
+var AFTER_LOGIN_PAGE = "album.html";
+
+function toggleSound() {
+  var video = document.getElementById("bg");
+  var btn = document.getElementById("soundBtn");
+  video.muted = !video.muted;
+  video.volume = 1;
+  video.play();
+  btn.textContent = video.muted ? "Sound off" : "Sound on";
+}
+
+function togglePassword() {
+  var input = document.getElementById("pass");
+  var button = document.getElementById("toggle");
+  if (input.type === "password") {
+    input.type = "text";
+    button.textContent = "Hide";
+  } else {
+    input.type = "password";
+    button.textContent = "Show";
+  }
+}
+
+function login() {
+  var user = document.getElementById("user").value.trim();
+  var pass = document.getElementById("pass").value;
+  var msg = document.getElementById("msg");
+  if (!user) { msg.textContent = "Enter your username or email."; return; }
+  if (pass.length < 6) { msg.textContent = "Password must be at least 6 characters."; return; }
+  var accounts = {};
+  try { accounts = JSON.parse(localStorage.getItem("accounts") || "{}"); } catch (e) {}
+  if (accounts[user.toLowerCase()] !== pass) {
+    msg.textContent = "Wrong username or password. No account yet? Sign up below.";
+    return;
+  }
+  msg.textContent = "";
+  window.location.href = AFTER_LOGIN_PAGE;
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") login();
+});
+</script>
+</body>
+</html>
