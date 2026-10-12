@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign up</title>
+<style>
+:root{--ink:#f3f5fb; --muted:#c3cadb; --line:rgba(255,255,255,.4); --accent:#ffd86b; --accent-ink:#1b1606; --err:#ff9a90; --ok:#7ee2ae}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink); background:#0b1020;
+  font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(20px + env(safe-area-inset-bottom,0px));
+}
+#bg{position:fixed; inset:0; width:100%; height:100%; object-fit:cover; z-index:-2}
+.shade{position:fixed; inset:0; background:rgba(5,8,20,.3); z-index:-1}
+main{
+  width:100%; max-width:380px; padding:28px 24px; border-radius:16px;
+  background:rgba(255,255,255,.12); border:1px solid var(--line);
+  -webkit-backdrop-filter:blur(0px); backdrop-filter:blur(0px);
+}
+h1{margin:0 0 4px; font-size:1.7rem}
+p.sub{margin:0 0 22px; color:var(--muted); font-size:.95rem}
+label{display:block; font-size:.9rem; font-weight:600; margin:0 0 6px}
+.field{margin-bottom:16px}
+input{
+  width:100%; padding:12px 14px; font-size:1rem; color:var(--ink);
+  background:rgba(255,255,255,.15); border:1px solid var(--line); border-radius:8px;
+}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--accent); outline-offset:2px}
+a{color:var(--accent)}
+.submit{width:100%; padding:13px; font-size:1rem; font-weight:700; cursor:pointer; background:var(--accent); color:var(--accent-ink); border:0; border-radius:8px}
+.msg{min-height:1.3em; margin-top:14px; font-size:.9rem; color:var(--err)}
+.msg.ok{color:var(--ok)}
+.foot{margin-top:18px; text-align:center; color:var(--muted); font-size:.9rem}
+</style>
+</head>
+<body>
+
+<video id="bg" autoplay muted loop playsinline aria-hidden="true">
+  <source src="ever.mp4" type="video/mp4">
+</video>
+<div class="shade"></div>
+
+<main>
+  <h1>Create account</h1>
+  <p class="sub">Pick a username and password.</p>
+
+  <div class="field">
+    <label for="user">Username</label>
+    <input id="user" type="text" autocomplete="username" autocapitalize="none">
+  </div>
+  <div class="field">
+    <label for="pass">Password</label>
+    <input id="pass" type="password" autocomplete="new-password">
+  </div>
+  <div class="field">
+    <label for="pass2">Confirm password</label>
+    <input id="pass2" type="password" autocomplete="new-password">
+  </div>
+
+  <button class="submit" type="button" onclick="signup()">Sign up</button>
+  <div class="msg" id="msg" role="alert"></div>
+
+  <div class="foot">Already have an account? <a href="login-final.html">Log in</a></div>
+</main>
+
+<script>
+function signup() {
+  var user = document.getElementById("user").value.trim().toLowerCase();
+  var pass = document.getElementById("pass").value;
+  var pass2 = document.getElementById("pass2").value;
+  var msg = document.getElementById("msg");
+  msg.className = "msg";
+
+  if (user.length < 3) { msg.textContent = "Username must be at least 3 characters."; return; }
+  if (pass.length < 6) { msg.textContent = "Password must be at least 6 characters."; return; }
+  if (pass !== pass2) { msg.textContent = "Passwords don't match."; return; }
+
+  var accounts = {};
+  try { accounts = JSON.parse(localStorage.getItem("accounts") || "{}"); } catch (e) {}
+  if (accounts[user]) { msg.textContent = "That username is already taken."; return; }
+
+  accounts[user] = pass;
+  try {
+    localStorage.setItem("accounts", JSON.stringify(accounts));
+  } catch (e) {
+    msg.textContent = "Your browser can't save accounts here. Open the page in Chrome or Safari.";
+    return;
+  }
+  msg.className = "msg ok";
+  msg.textContent = "Account created! Going to log in...";
+  setTimeout(function () { window.location.href = "login-final.html"; }, 1200);
+}
+
+document.addEventListener("keydown", function (e) { if (e.key === "Enter") signup(); });
+</script>
+</body>
+</html>
